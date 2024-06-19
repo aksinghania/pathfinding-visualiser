@@ -12,7 +12,7 @@ BLUE = (0,255,0)
 YELLOW = (255,255,0)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
-PURPL = (128,0,128)
+PURPLE = (128,0,128)
 ORANGE = (255,165,0)
 GREY = (128,128,128)
 TURQUOISE = (64,224,208)
@@ -93,6 +93,13 @@ def h(p1,p2):
     x2,y2 = p2
     return abs(x1-x2) + abs(y1-y2)
 
+def reconstruct_path(came_from, current, draw):
+    while current in came_from:
+        current = came_from[current]
+        current.make_path()
+        draw()
+
+
 def algorithm(draw, grid, start, end):
     count = 0
     open_set = PriorityQueue()
@@ -116,7 +123,7 @@ def algorithm(draw, grid, start, end):
         if current == end:
             reconstruct_path(came_from, end, draw)
             end.make_end()
-            return True
+            return True 
 
         for neighbor in current.neighbors:
             temp_g_score = g_score[current] + 1
@@ -216,14 +223,17 @@ def main(win, width):
                     end = None
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start:
+                if event.key == pygame.K_SPACE and start and end:
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
 
                     algorithm(lambda: draw(win,grid,ROWS,width),grid,start,end)
                     
-
+                if event.key == pygame.K_c:
+                    start = None
+                    end = None
+                    grid = make_grid(ROWS,width)
 
 
     pygame.quit()
