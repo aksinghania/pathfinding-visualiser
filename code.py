@@ -103,6 +103,39 @@ def algorithm(draw,grid,start,end):
     f_score = {spot: float("inf") for row in grid for spot in row}
     f_score[start] = h(start.get_pos(),end.get_pos())
 
+    open_set_hash = {start}
+
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
+
+        if current == end:
+            return True
+
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1
+
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + h(neighbors.get_pos(),end.get_pos())
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.push((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()
+        draw()
+
+        if current != start:
+            current.make_closed()
+    return False
+
+
+
 def make_grid(rows,width):
     grid = []
     gap = width // rows
@@ -180,10 +213,10 @@ def main(win, width):
                     end = None
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not started:
+                if event.key == pygame.K_SPACE and start:
                     for row in grid:
                         for spot in row:
-                            spot.update_neighbors()
+                            spot.update_neighbors(grid)
 
                     algorithm(lambda: draw(win,grid,ROWS,width),grid,start,end)
                     
