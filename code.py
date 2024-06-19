@@ -47,25 +47,25 @@ class Spot:
         return self.color == TURQUOISE
     
     def reset(self):
-        return self.color == WHITE
+        self.color = WHITE
 
     def make_start(self):
-        self.color == ORANGE
+        self.color = ORANGE
 
     def make_closed(self):
-        self.color == RED
+        self.color = RED
     
     def make_open(self):
         self.color = GREEN
     
     def make_barrier(self):
-        self.color == BLACK
+        self.color = BLACK
     
     def make_end(self):
-        self.color == TURQUOISE
+        self.color = TURQUOISE
 
     def make_path(self):
-        self.color == PURPLE
+        self.color = PURPLE
 
     def draw(self,win):
         pygame.draw.rect(win,self.color,(self.x,self.y,self.width,self.width))
@@ -117,39 +117,46 @@ def get_clicked_pos(pos,rows,width):
 
     return row,col
 
-def main(win,width):
+def main(win, width):
     ROWS = 50
-    grid  = make_grid(ROWS,width)
+    grid = make_grid(ROWS, width)
 
     start = None
     end = None
-    
-    run = True 
-    started = False
+
+    run = True
     while run:
-        draw(win,grid,ROWS,width)
+        draw(win, grid, ROWS, width)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
-            if started:
-                continue
-
-            if pygame.mouse.get_pressed()[0]: 
+            if pygame.mouse.get_pressed()[0]: # LEFT
+               
                 pos = pygame.mouse.get_pos()
-                row,col = get_clicked_pos(pos,ROWS,width)
+                row, col = get_clicked_pos(pos, ROWS, width)
                 spot = grid[row][col]
-                if not start:
+                if not start and spot != end:
                     start = spot
                     start.make_start()
-                elif not end:
+
+                elif not end and spot != start:
                     end = spot
                     end.make_end()
+
                 elif spot != end and spot != start:
                     spot.make_barrier()
-            
-            elif pygame.mouse.get_pressed()[2]:
-                pass
+
+            elif pygame.mouse.get_pressed()[2]: # RIGHT
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, ROWS, width)
+                spot = grid[row][col]
+                spot.reset()
+                if spot == start:
+                    start = None
+                if spot == end:
+                    end = None
+                
 
     pygame.quit()
 main(WIN,WIDTH)
